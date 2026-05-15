@@ -202,7 +202,7 @@ def main():
 
     # Save Model and Tokenizer
     print("Saving model and tokenizer...")
-    model.save("sentiment_cnn_model.keras")
+    model.save("sentiment_cnn_model.h5")
     with open("tokenizer.pickle", "wb") as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print("Done!")

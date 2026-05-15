@@ -90,7 +90,7 @@ st.markdown("""
 
 # --- Constants & Resources ---
 MAX_SEQUENCE_LENGTH = 100
-MODEL_PATH = "sentiment_cnn_model.keras"
+MODEL_PATH = "sentiment_cnn_model.h5"
 TOKENIZER_PATH = "tokenizer.pickle"
 
 @st.cache_resource(show_spinner="Loading ABSA Neural Network...")
