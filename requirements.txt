@@ -3,5 +3,8 @@ plotly
 pandas
 numpy
 scikit-learn
+matplotlib
 torch
 transformers
+sentencepiece
+protobuf
