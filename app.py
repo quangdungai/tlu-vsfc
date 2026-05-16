@@ -78,35 +78,8 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<div class='gradient-divider'></div>", unsafe_allow_html=True)
-
-# ── Cách hoạt động ────────────────────────────────────────────────────────────
 st.markdown("""
-<h2 style='text-align:center;color:#0f172a;font-weight:700;margin-bottom:24px;'>
-    Hệ thống hoạt động như thế nào?
-</h2>
-""", unsafe_allow_html=True)
-
-c1, c2, c3, c4 = st.columns(4)
-buoc = [
-    ("1️⃣", "Nhập phản hồi",       "Sinh viên nhập câu tiếng Việt bất kỳ"),
-    ("2️⃣", "Tách mệnh đề",        "AI tách theo từ nối: nhưng, tuy nhiên, còn…"),
-    ("3️⃣", "Nhận diện khía cạnh", "Khớp từ khóa → Giảng viên, Cơ sở, Chương trình…"),
-    ("4️⃣", "Dự đoán cảm xúc",     "Mô hình CNN + BiLSTM → Tích cực / Trung lập / Tiêu cực"),
-]
-for col, (icon, tieu_de, mo_ta) in zip([c1, c2, c3, c4], buoc):
-    with col:
-        st.markdown(f"""
-        <div style='text-align:center;padding:16px;'>
-            <div style='font-size:2rem;margin-bottom:8px;'>{icon}</div>
-            <div style='font-weight:700;color:#0f172a;margin-bottom:6px;font-size:0.95rem;'>{tieu_de}</div>
-            <div style='color:#64748b;font-size:0.8rem;'>{mo_ta}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("""
-<div style='text-align:center;'>
+<div style='text-align:center;margin-top:16px;'>
     <p style='color:#94a3b8;font-size:0.85rem;'>
         Chọn chức năng từ menu bên trái để bắt đầu →
         <strong style='color:#4f46e5;'>📊 Bảng điều khiển</strong> &nbsp;·&nbsp;
