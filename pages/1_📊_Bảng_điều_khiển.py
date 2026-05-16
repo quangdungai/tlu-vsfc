@@ -10,6 +10,7 @@ import sys
 import json
 import time
 import io
+import base64
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -31,12 +32,31 @@ def load_css():
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 load_css()
 
+@st.cache_data
+def get_base64_image(file_path):
+    if not os.path.exists(file_path):
+        return ""
+    with open(file_path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+# Logo trên cùng sidebar
+_logo_path = os.path.join(ROOT_DIR, "Logo-DH-Thuy-Loi.webp")
+
 # ── Sidebar ───────────────────────────────────────────────────────────────────
+_logo_b64 = get_base64_image(_logo_path)
 with st.sidebar:
-    logo_path = os.path.join(ROOT_DIR, "Logo-DH-Thuy-Loi.webp")
-    if os.path.exists(logo_path):
-        st.image(logo_path, width=90)
-    st.markdown("<p style='color:#a5b4fc;font-weight:700;'>TLU Analytics</p>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='display:flex;align-items:center;gap:12px;padding:4px 0 10px;'>
+        <img src='data:image/webp;base64,{_logo_b64}'
+             style='width:48px;height:48px;object-fit:contain;border-radius:50%;flex-shrink:0;'>
+        <div>
+            <p style='font-size:1rem;font-weight:800;color:#e0e7ff;margin:0;line-height:1.2;'>TLU Analytics</p>
+            <p style='font-size:0.7rem;color:#a5b4fc;margin:0;'>Phân tích phản hồi sinh viên</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:rgba(255,255,255,0.15);margin:4px 0 12px;'>", unsafe_allow_html=True)
+
 
 model, tokenizer = get_model_and_tokenizer()
 if model:
