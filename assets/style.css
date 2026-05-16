@@ -1,0 +1,189 @@
+/*
+ * style.css — Global CSS cho TLU Feedback Analytics
+ * Dark/Light mode được điều khiển qua data-theme attribute
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Base ──────────────────────────────────────────────────── */
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* ── Header / Sidebar ────────────────────────────────────── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(160deg, #1e1b4b 0%, #312e81 100%) !important;
+}
+[data-testid="stSidebar"] * {
+    color: #e0e7ff !important;
+}
+[data-testid="stSidebar"] .stRadio label {
+    color: #c7d2fe !important;
+    font-weight: 500;
+}
+[data-testid="stSidebarNav"] a {
+    color: #c7d2fe !important;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+[data-testid="stSidebarNav"] a:hover {
+    background: rgba(255,255,255,0.1) !important;
+}
+
+/* ── Main Background ──────────────────────────────────────── */
+.main {
+    background-color: #f8fafc !important;
+}
+
+/* ── KPI Cards ────────────────────────────────────────────── */
+.kpi-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    border-left: 5px solid #4f46e5;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.kpi-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+.kpi-title {
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+.kpi-value {
+    color: #0f172a;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+}
+.kpi-sub {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+
+/* ── Aspect Sentiment Cards ───────────────────────────────── */
+.aspect-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-top: 4px solid #4f46e5;
+    text-align: center;
+    transition: transform 0.2s ease;
+    height: 100%;
+}
+.aspect-card:hover {
+    transform: translateY(-3px);
+}
+.aspect-name {
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+.aspect-sentiment {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+.aspect-confidence {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+.aspect-clause {
+    color: #64748b;
+    font-size: 0.78rem;
+    font-style: italic;
+    margin-top: 10px;
+    padding: 6px 10px;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+/* ── Chart Container ──────────────────────────────────────── */
+.chart-box {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+}
+
+/* ── Page Header ──────────────────────────────────────────── */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+.page-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+.badge-pos { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 99px; font-weight: 600; font-size: 0.85rem; }
+.badge-neg { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 99px; font-weight: 600; font-size: 0.85rem; }
+.badge-neu { background: #fef9c3; color: #854d0e; padding: 4px 12px; border-radius: 99px; font-weight: 600; font-size: 0.85rem; }
+
+/* ── History Table ────────────────────────────────────────── */
+.history-row {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-left: 4px solid #e2e8f0;
+    transition: border-color 0.2s;
+}
+.history-row:hover {
+    border-left-color: #4f46e5;
+}
+
+/* ── Animated Spinner ─────────────────────────────────────── */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+.ai-thinking {
+    animation: pulse 1.5s ease-in-out infinite;
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Divider ──────────────────────────────────────────────── */
+.gradient-divider {
+    height: 3px;
+    background: linear-gradient(90deg, #4f46e5, #10b981, #4f46e5);
+    border: none;
+    border-radius: 2px;
+    margin: 24px 0;
+    opacity: 0.4;
+}

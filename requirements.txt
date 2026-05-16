@@ -8,3 +8,6 @@ keras
 h5py
 protobuf
 openpyxl
+wordcloud
+matplotlib
+Pillow

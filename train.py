@@ -117,12 +117,17 @@ def main():
         ("máy tính cùi bắp, học chán", 3, 0, 0, 3),
         ("đào tạo thực tế nhưng phòng học nóng", 3, 2, 0, 3),
         ("thầy dạy dễ hiểu nhưng điều hòa hỏng", 2, 3, 0, 3),
-        ("chương trình hay, trường đẹp, cô giáo tuyệt vời", 2, 2, 2, 3)
+        ("chương trình hay, trường đẹp, cô giáo tuyệt vời", 2, 2, 2, 3),
+        # 3-aspect demo cases
+        ("cô dạy nhiệt tình nhưng phòng hơi nóng, chương trình đào tạo tốt", 2, 2, 0, 3),
+        ("giảng viên tốt, phòng máy lạnh xịn nhưng môn học quá nhàm chán", 2, 0, 2, 3),
+        ("thầy tận tâm, chương trình thực tế, nhưng trường quá nóng", 2, 2, 0, 3),
+        ("phòng học đẹp, chương trình tốt nhưng cô giáo khó tính", 0, 2, 2, 3)
     ]
     
     for text, lec_s, tra_s, fac_s, oth_s in absa_edge_cases:
-        # Replicate edge cases to give them weight
-        for _ in range(15):
+        # Replicate edge cases heavily to overcome class imbalance without class_weights
+        for _ in range(100):
             train_texts.append(text)
             y_train_absa['lecturer'] = np.append(y_train_absa['lecturer'], lec_s)
             y_train_absa['training'] = np.append(y_train_absa['training'], tra_s)
