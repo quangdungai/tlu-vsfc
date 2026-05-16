@@ -62,6 +62,16 @@ ASPECT_DISPLAY = {
     'Others_Sentiment': 'Khác',
 }
 
+def tim_cot_van_ban(df: pd.DataFrame) -> str:
+    """Tự động nhận ra cột văn bản (không phải cột sentiment)."""
+    # Ưu tiên tên cột phổ biến
+    for ten in ['Phản hồi', 'Feedback', 'text', 'sentence', 'comment', 'review']:
+        if ten in df.columns:
+            return ten
+    # Lấy cột đầu tiên không phải sentiment
+    khong_phai_sentiment = [c for c in df.columns if c not in ASPECT_COLS]
+    return khong_phai_sentiment[0] if khong_phai_sentiment else df.columns[0]
+
 def get_representative_sentences(sentences, top_n=5):
     sentences = [str(s) for s in sentences if str(s).strip()]
     if len(sentences) <= top_n:
@@ -130,8 +140,9 @@ def load_demo_data():
     try:
         with open(os.path.join(data_dir, "test", "sents.txt"), "r", encoding="utf-8") as f:
             lines = f.readlines()
-        df = pd.DataFrame({"Feedback": [line.strip() for line in lines[:500] if line.strip()]})
-        return predict_batch(df, "Feedback")
+        # Dùng 'Phản hồi' làm tên cột chuẩn
+        df = pd.DataFrame({"Phản hồi": [line.strip() for line in lines[:500] if line.strip()]})
+        return predict_batch(df, "Phản hồi")
     except Exception as e:
         return None
 
@@ -214,7 +225,7 @@ if df is not None and not df.empty:
             import matplotlib.pyplot as plt
             st.markdown("<div class='chart-box'>", unsafe_allow_html=True)
             st.markdown("#### ☁️ Word Cloud phản hồi")
-            all_text = ' '.join(df['Feedback'].astype(str).tolist())
+            all_text = ' '.join(df[tim_cot_van_ban(df)].astype(str).tolist())
             wc = WordCloud(width=900, height=300, background_color='white',
                            colormap='RdYlGn', max_words=100,
                            font_path=None).generate(all_text)
@@ -253,7 +264,8 @@ if df is not None and not df.empty:
         # Ý kiến tiêu biểu
         st.markdown("---")
         st.markdown("##### 💡 Ý kiến tiêu biểu (AI trích xuất)")
-        top_sents = get_representative_sentences(filtered_df['Feedback'].tolist(), top_n=5)
+        cot_van_ban = tim_cot_van_ban(filtered_df)
+        top_sents = get_representative_sentences(filtered_df[cot_van_ban].tolist(), top_n=5)
         for s in top_sents:
             st.markdown(f"> *\"{s}\"*")
 
