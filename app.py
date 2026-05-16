@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Embedding, Conv1D, GlobalMaxPooling1D, concatenate, Dense, Dropout, Bidirectional, LSTM
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 import os
@@ -90,19 +91,46 @@ st.markdown("""
 
 # --- Constants & Resources ---
 MAX_SEQUENCE_LENGTH = 100
-MODEL_PATH = "sentiment_cnn_model.keras"
+WEIGHTS_PATH = "sentiment_cnn_weights.weights.h5"
 TOKENIZER_PATH = "tokenizer.pickle"
+
+def build_model(max_vocab_size=10000, max_sequence_length=100, embedding_dim=50):
+    input_layer = Input(shape=(max_sequence_length,))
+    embedding_layer = Embedding(input_dim=max_vocab_size, output_dim=embedding_dim)(input_layer)
+    
+    conv_blocks = []
+    for kernel_size in [3, 4, 5]:
+        conv = Conv1D(filters=128, kernel_size=kernel_size, activation='relu')(embedding_layer)
+        pool = GlobalMaxPooling1D()(conv)
+        conv_blocks.append(pool)
+        
+    cnn_concat = concatenate(conv_blocks, axis=1)
+    bilstm = Bidirectional(LSTM(64, return_sequences=False))(embedding_layer)
+    concat_layer = concatenate([cnn_concat, bilstm], axis=1)
+    
+    def build_branch(name):
+        dense1 = Dense(64, activation='relu')(concat_layer)
+        drop1 = Dropout(0.5)(dense1)
+        return Dense(4, activation='softmax', name=f'{name}_output')(drop1)
+
+    out_lecturer = build_branch('lecturer')
+    out_training = build_branch('training')
+    out_facility = build_branch('facility')
+    out_others = build_branch('others')
+
+    return Model(inputs=input_layer, outputs=[out_lecturer, out_training, out_facility, out_others])
 
 @st.cache_resource(show_spinner="Loading ABSA Neural Network...")
 def load_resources(model_mtime, tok_mtime):
-    if not os.path.exists(MODEL_PATH) or not os.path.exists(TOKENIZER_PATH):
+    if not os.path.exists(WEIGHTS_PATH) or not os.path.exists(TOKENIZER_PATH):
         return None, None
-    model = load_model(MODEL_PATH)
+    model = build_model()
+    model.load_weights(WEIGHTS_PATH)
     with open(TOKENIZER_PATH, 'rb') as handle:
         tokenizer = pickle.load(handle)
     return model, tokenizer
 
-model_mtime = os.path.getmtime(MODEL_PATH) if os.path.exists(MODEL_PATH) else 0
+model_mtime = os.path.getmtime(WEIGHTS_PATH) if os.path.exists(WEIGHTS_PATH) else 0
 tok_mtime = os.path.getmtime(TOKENIZER_PATH) if os.path.exists(TOKENIZER_PATH) else 0
 model, tokenizer = load_resources(model_mtime, tok_mtime)
 

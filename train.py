@@ -213,9 +213,9 @@ def main():
     results = model.evaluate(X_test, y_test_list)
     print(f"Test Results: {results}")
 
-    # Save Model and Tokenizer
-    print("Saving model and tokenizer...")
-    model.save("sentiment_cnn_model.keras")
+    # Save Model Weights and Tokenizer
+    print("Saving model weights and tokenizer...")
+    model.save_weights("sentiment_cnn_weights.weights.h5")
     with open("tokenizer.pickle", "wb") as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print("Done!")
