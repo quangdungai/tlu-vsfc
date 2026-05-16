@@ -132,13 +132,11 @@ if submitted and text_input.strip():
                 <div class='aspect-card' style='border-top-color:{color};'>
                     <div class='aspect-name'>{aspect}</div>
                     <div class='aspect-sentiment' style='color:{color};'>{sentiment["label"]}</div>
-                    <div class='aspect-confidence'>Độ tự tin: {sentiment["confidence"]:.1%}</div>
-                    {f'<div class="aspect-clause">📌 "{clause}"</div>' if clause and clause != text_input.strip() else ''}
                 </div>
                 """, unsafe_allow_html=True)
 
-                fig = confidence_bar(sentiment["distribution"])
-                st.plotly_chart(fig, use_container_width=True)
+                # fig = confidence_bar(sentiment["distribution"])
+                # st.plotly_chart(fig, use_container_width=True)
 
     # ── Prediction History ────────────────────────────────────────────────────
     if 'predict_history' not in st.session_state:
