@@ -94,7 +94,7 @@ MODEL_PATH = "sentiment_cnn_model.h5"
 TOKENIZER_PATH = "tokenizer.pickle"
 
 @st.cache_resource(show_spinner="Loading ABSA Neural Network...")
-def load_resources():
+def load_resources(model_mtime, tok_mtime):
     if not os.path.exists(MODEL_PATH) or not os.path.exists(TOKENIZER_PATH):
         return None, None
     model = load_model(MODEL_PATH)
@@ -102,7 +102,9 @@ def load_resources():
         tokenizer = pickle.load(handle)
     return model, tokenizer
 
-model, tokenizer = load_resources()
+model_mtime = os.path.getmtime(MODEL_PATH) if os.path.exists(MODEL_PATH) else 0
+tok_mtime = os.path.getmtime(TOKENIZER_PATH) if os.path.exists(TOKENIZER_PATH) else 0
+model, tokenizer = load_resources(model_mtime, tok_mtime)
 
 # Mappings
 sentiment_map = {0: "Negative 😠", 1: "Neutral 😐", 2: "Positive 😄"}
