@@ -30,9 +30,9 @@ with st.sidebar:
 
 model, tokenizer = get_model_and_tokenizer()
 if model:
-    st.sidebar.success("🟢 AI Model Online")
+    st.sidebar.success("🟢 Mô hình đang hoạt động")
 else:
-    st.sidebar.error("🔴 Model Offline")
+    st.sidebar.error("🔴 Mô hình ngoại tuyến")
 
 # Câu mẫu gợi ý
 EXAMPLE_SENTENCES = [
@@ -50,8 +50,8 @@ st.markdown("""
 <div class='page-header'>
     <div style='font-size:2.5rem;'>⚡</div>
     <div>
-        <h1 class='page-title'>Kiểm thử Từng câu</h1>
-        <p class='page-subtitle'>Nhập câu tiếng Việt và nhận kết quả phân tích đa khía cạnh realtime</p>
+        <h1 class='page-title'>Dự đoán từng câu</h1>
+        <p class='page-subtitle'>Nhập câu tiếng Việt và nhận kết quả dự đoán đa khía cạnh ngay lập tức</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -69,10 +69,10 @@ with st.form("predict_form"):
     )
     col_btn, col_ex = st.columns([2, 5])
     with col_btn:
-        submitted = st.form_submit_button("🚀 Phân tích ABSA", type="primary", use_container_width=True)
+        submitted = st.form_submit_button("▶ Bắt đầu dự đoán", type="primary", use_container_width=True)
 
 # Gợi ý câu mẫu
-with st.expander("💡 Câu mẫu thử nghiệm", expanded=False):
+with st.expander("💡 Câu mẫu gợi ý", expanded=False):
     for i, ex in enumerate(EXAMPLE_SENTENCES):
         if st.button(f"▶ {ex}", key=f"ex_{i}"):
             text_input = ex
@@ -80,7 +80,7 @@ with st.expander("💡 Câu mẫu thử nghiệm", expanded=False):
 
 # ── Prediction ───────────────────────────────────────────────────────────────
 if submitted and text_input.strip():
-    with st.spinner("🤖 AI đang phân tích..."):
+    with st.spinner("🤖 Đang dự đoán..."):
         time.sleep(0.3)  # UX: nhỏ delay để spinner hiển thị
         results = run_absa_pipeline(text_input.strip(), model, tokenizer)
 
@@ -91,7 +91,7 @@ if submitted and text_input.strip():
     else:
         st.markdown(f"""
         <div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px 20px;margin-bottom:20px;'>
-            <strong style='color:#166534;'>📝 Câu phân tích:</strong>
+            <strong style='color:#166534;'>📝 Câu đã nhập:</strong>
             <span style='color:#1e293b;'> "{text_input.strip()}"</span>
         </div>
         """, unsafe_allow_html=True)
@@ -134,12 +134,12 @@ if submitted and text_input.strip():
             st.session_state['predict_history'] = st.session_state['predict_history'][:20]
 
 elif submitted:
-    st.warning("⚠️ Vui lòng nhập câu phản hồi trước khi phân tích.")
+    st.warning("⚠️ Vui lòng nhập câu phản hồi trước khi dự đoán.")
 
 # ── History ──────────────────────────────────────────────────────────────────
 if st.session_state.get('predict_history'):
     st.markdown("<div class='gradient-divider'></div>", unsafe_allow_html=True)
-    st.markdown("#### 🕐 Lịch sử phân tích gần đây")
+    st.markdown("#### 🕐 Lịch sử dự đoán")
     for entry in st.session_state['predict_history']:
         badge_html = ""
         for aspect, label in entry["aspects"]:
