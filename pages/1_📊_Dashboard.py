@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
+import json
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -16,7 +17,7 @@ from utils.visualizer import sentiment_donut, aspect_bar_chart
 from utils.preprocessor import clean_text
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-st.set_page_config(page_title="Dashboard – TLU Analytics", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Bảng điều khiển – TLU Analytics", page_icon="📊", layout="wide")
 
 # Load CSS
 def load_css():
@@ -41,12 +42,12 @@ with model_status:
     else:
         st.sidebar.error("🔴 Model Offline")
 
-# ── Page Header ─────────────────────────────────────────────────────────────
+# ── Tiêu đề ─────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class='page-header'>
     <div style='font-size:2.5rem;'>📊</div>
     <div>
-        <h1 class='page-title'>Dashboard Phân tích</h1>
+        <h1 class='page-title'>Bảng điều khiển</h1>
         <p class='page-subtitle'>Tổng quan cảm xúc và khía cạnh từ phản hồi sinh viên</p>
     </div>
 </div>
@@ -91,9 +92,41 @@ def predict_batch(df, text_col):
         df[f'{aspect}_Sentiment'] = labels
     return df
 
+# ── Persistence helpers ──────────────────────────────────────────────────────
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PERSIST_PATH = os.path.join(ROOT_DIR, "data", "current_data.csv")
+META_PATH = os.path.join(ROOT_DIR, "data", "current_data_meta.json")
+
+def save_to_disk(df: pd.DataFrame, source_name: str = "uploaded"):
+    """Lưu DataFrame đã phân tích vào disk để tái sử dụng sau refresh."""
+    os.makedirs(os.path.dirname(PERSIST_PATH), exist_ok=True)
+    df.to_csv(PERSIST_PATH, index=False, encoding="utf-8-sig")
+    meta = {"source": source_name, "rows": len(df)}
+    with open(META_PATH, "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False)
+
+def load_from_disk() -> pd.DataFrame | None:
+    """Load dữ liệu đã lưu từ lần trước (nếu có)."""
+    if os.path.exists(PERSIST_PATH):
+        try:
+            return pd.read_csv(PERSIST_PATH, encoding="utf-8-sig")
+        except Exception:
+            return None
+    return None
+
+def get_persist_meta() -> dict:
+    """Đọc metadata của file đã lưu."""
+    if os.path.exists(META_PATH):
+        try:
+            with open(META_PATH, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
 @st.cache_data
 def load_demo_data():
-    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+    data_dir = os.path.join(ROOT_DIR, "data")
     try:
         with open(os.path.join(data_dir, "test", "sents.txt"), "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -102,32 +135,30 @@ def load_demo_data():
     except Exception as e:
         return None
 
-# ── Data Loading ─────────────────────────────────────────────────────────────
-with st.expander("📂 Tải lên Dữ liệu mới", expanded=False):
-    uploaded_file = st.file_uploader("Kéo thả CSV, XLSX hoặc TXT", type=["csv", "xlsx", "txt"])
-    if uploaded_file:
-        if uploaded_file.name.endswith(".csv"):
-            df_upload = pd.read_csv(uploaded_file)
-        elif uploaded_file.name.endswith(".xlsx"):
-            df_upload = pd.read_excel(uploaded_file)
-        else:
-            content = uploaded_file.read().decode("utf-8")
-            df_upload = pd.DataFrame({"Feedback": [l.strip() for l in content.split("\n") if l.strip()]})
-        text_col = st.selectbox("Chọn cột chứa câu phản hồi:", df_upload.columns)
-        if st.button("🚀 Phân tích AI", type="primary"):
-            with st.spinner("Đang chạy ABSA pipeline..."):
-                results_df = predict_batch(df_upload, text_col)
-                if text_col != "Feedback":
-                    results_df = results_df.rename(columns={text_col: "Feedback"})
-                st.session_state['dashboard_data'] = results_df
-                st.success("✅ Phân tích hoàn tất!")
+# ── Thông báo nguồn dữ liệu ──────────────────────────────────────────────────
+meta = get_persist_meta()
+if meta:
+    st.info(f"📌 Đang hiển thị dữ liệu từ: **{meta.get('source', 'N/A')}** — {meta.get('rows', 0):,} câu | Để thay đổi, vào trang **📂 Dự đoán Hàng loạt**")
+    if st.button("🗑️ Xóa & Dùng dữ liệu mẫu", key="clear_disk"):
+        if os.path.exists(PERSIST_PATH):
+            os.remove(PERSIST_PATH)
+        if os.path.exists(META_PATH):
+            os.remove(META_PATH)
+        st.session_state.pop('dashboard_data', None)
+        st.rerun()
+else:
+    st.info("ℹ️ Đang dùng **dữ liệu mẫu** từ bộ dữ liệu kiểm thử. Vào trang **📂 Dự đoán Hàng loạt** để tải lên dữ liệu của bạn.")
 
 st.markdown("<div class='gradient-divider'></div>", unsafe_allow_html=True)
 
-# Load dữ liệu
+# ── Tải dữ liệu theo thứ tự ưu tiên ──────────────────────────────────────────
 if 'dashboard_data' not in st.session_state:
-    with st.spinner("Đang tải dữ liệu mẫu..."):
-        st.session_state['dashboard_data'] = load_demo_data()
+    disk_df = load_from_disk()
+    if disk_df is not None:
+        st.session_state['dashboard_data'] = disk_df
+    else:
+        with st.spinner("Đang tải dữ liệu mẫu..."):
+            st.session_state['dashboard_data'] = load_demo_data()
 
 df = st.session_state.get('dashboard_data')
 
@@ -162,7 +193,7 @@ if df is not None and not df.empty:
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    tab1, tab2 = st.tabs(["📈 Báo cáo Tổng quan", "🗂️ Phân tích Chi tiết"])
+    tab1, tab2 = st.tabs(["📈 Tổng quan", "🗂️ Chi tiết"])
 
     with tab1:
         c1, c2 = st.columns([1, 2])
@@ -221,13 +252,13 @@ if df is not None and not df.empty:
 
         # Ý kiến tiêu biểu
         st.markdown("---")
-        st.markdown("##### 💡 Ý kiến Tiêu biểu (AI trích xuất)")
+        st.markdown("##### 💡 Ý kiến tiêu biểu (AI trích xuất)")
         top_sents = get_representative_sentences(filtered_df['Feedback'].tolist(), top_n=5)
         for s in top_sents:
             st.markdown(f"> *\"{s}\"*")
 
         st.markdown("---")
-        st.markdown("##### 📄 Bảng Dữ liệu Chi tiết")
+        st.markdown("##### 📄 Bảng dữ liệu chi tiết")
 
         def color_sentiment(val):
             if pd.isna(val): return ''
@@ -240,8 +271,8 @@ if df is not None and not df.empty:
             filtered_df.style.map(color_sentiment, subset=ASPECT_COLS),
             use_container_width=True, height=400
         )
-        csv = filtered_df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Xuất CSV", data=csv, file_name="tlu_absa_results.csv", mime="text/csv")
+        csv = filtered_df.to_csv(index=False).encode('utf-8-sig')
+        st.download_button("📥 Tải xuống CSV", data=csv, file_name="ket_qua_loc.csv", mime="text/csv")
         st.markdown("</div>", unsafe_allow_html=True)
 else:
-    st.warning("⚠️ Chưa có dữ liệu. Vui lòng tải file lên hoặc kiểm tra thư mục `data/`.")
+    st.warning("⚠️ Chưa có dữ liệu. Vào trang **📂 Dự đoán Hàng loạt** để tải lên file phản hồi của bạn.")
