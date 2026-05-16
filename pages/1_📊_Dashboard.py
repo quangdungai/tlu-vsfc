@@ -139,12 +139,12 @@ def y_kien_tieu_bieu(sentences, top_n=5):
         return sentences[:top_n]
 
 # ── Khu vực tải file ──────────────────────────────────────────────────────────
-meta = doc_meta()
-if meta:
-    st.info(
-        f"📌 Đang hiển thị: **{meta.get('source','N/A')}** — {meta.get('rows',0):,} câu  "
-        f"| Tải file mới bên dưới để thay thế."
-    )
+# meta = doc_meta()
+# if meta:
+#     st.info(
+#         f"📌 Đang hiển thị: **{meta.get('source','N/A')}** — {meta.get('rows',0):,} câu  "
+#         f"| Tải file mới bên dưới để thay thế."
+#     )
 
 with st.expander("📂 Tải lên file phản hồi mới", expanded=not bool(meta)):
     uploaded = st.file_uploader(
